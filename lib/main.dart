@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:projekt_inz/animation_utils.dart';
 import 'dart:convert' as convert;
 
 import 'package:projekt_inz/model/Employee.dart';
@@ -15,11 +16,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Projekt inz',
+      title: 'Projekt inżynierski',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Projekt inz'),
+      home: MyHomePage(title: 'Projekt inżynierski'),
     );
   }
 }
@@ -40,6 +41,8 @@ class _MyHomePageState extends State<MyHomePage> {
   var _startTime;
   var _endTime;
 
+  bool animationTest = false;
+
   void startTimer() {
     setState(() {
       _response = "...";
@@ -51,6 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _endTime = DateTime.now().millisecondsSinceEpoch;
     setState(() {
       _time = _endTime - _startTime;
+      animationTest = false;
     });
   }
 
@@ -79,22 +83,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            RaisedButton(
-                child: new Text(
-                    "Pobierz dane z Internetu i wyświetl JSON".toUpperCase(),
-                    textAlign: TextAlign.center),
-                onPressed: fetchDataFromApi),
-            RaisedButton(
-                child: new Text(
-                    "Połącz z bazą danych SQLite i wyświetl rekordy"
-                        .toUpperCase(),
-                    textAlign: TextAlign.center),
-                onPressed: getDataFromDatabase),
-            RaisedButton(
-                child: new Text(
-                    "Uzyskaj dostęp do pliku systemowego".toUpperCase(),
-                    textAlign: TextAlign.center),
-                onPressed: getFileFromAppDirectory),
+            createButton(
+                "Pobierz dane z Internetu i wyświetl JSON", fetchDataFromApi),
+            createButton("Połącz z bazą danych SQLite i wyświetl rekordy",
+                getDataFromDatabase),
+            createButton(
+                "Uzyskaj dostęp do pliku systemowego", getFileFromAppDirectory),
+            createButton("Wykonaj test animacji", executeAnimationTest),
             SizedBox(height: 10.0),
             Center(child: Text("Czas wykonania operacji".toUpperCase())),
             Center(
@@ -103,12 +98,31 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(_response ?? "..."),
-            )
+            animationTest
+                ? LogoAnimationTest(notifyParent: stopTimer)
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(_response ?? "..."),
+                  )
           ],
         ));
+  }
+
+  Widget createButton(String text, VoidCallback function) {
+    return RaisedButton(
+        child: new Text(text.toUpperCase(), textAlign: TextAlign.center),
+        onPressed: function);
+  }
+
+  void executeAnimationTest() {
+    setState(() {
+      startTimer();
+      animationTest = true;
+    });
+  }
+
+  String getErrorMsg(e){
+    return "Wystąpił błąd, spróbuj jeszcze raz. \n${e.toString()}";
   }
 
   void fetchDataFromApi() {
@@ -124,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }).whenComplete(() {
       stopTimer();
     }).catchError((e) {
-      _response = "Wystąpił błąd, spróbuj jeszcze raz. \n${e.toString()}";
+      _response = getErrorMsg(e);
     });
   }
 
@@ -148,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }).whenComplete(() {
       stopTimer();
     }).catchError((e) {
-      _response = "Wystąpił błąd, spróbuj jeszcze raz. \n${e.toString()}";
+      _response = getErrorMsg(e);
     });
   }
 }
