@@ -50,11 +50,20 @@ class _MyHomePageState extends State<MyHomePage> {
     _startTime = DateTime.now().millisecondsSinceEpoch;
   }
 
+//  int index = 0;
+//  List durations = new List();
+
   void stopTimer() {
     _endTime = DateTime.now().millisecondsSinceEpoch;
     setState(() {
-      _time = _endTime - _startTime;
       animationTest = false;
+      _time = _endTime - _startTime;
+//      durations.add(_time);
+
+//      index++;
+//      print(index.toString());
+//      if(index==100) print(durations.toString());
+
     });
   }
 
@@ -133,7 +142,6 @@ class _MyHomePageState extends State<MyHomePage> {
         jsonResponse.forEach((e) {
           _response += "\n ${Employee.fromJson(e)}";
         });
-        stopTimer();
       });
     }).whenComplete(() {
       stopTimer();
