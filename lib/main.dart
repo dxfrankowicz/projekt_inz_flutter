@@ -45,17 +45,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void startTimer() {
     setState(() {
+      _startTime = DateTime.now().millisecondsSinceEpoch;
       _response = "...";
     });
-    _startTime = DateTime.now().millisecondsSinceEpoch;
   }
 
 //  int index = 0;
 //  List durations = new List();
 
   void stopTimer() {
-    _endTime = DateTime.now().millisecondsSinceEpoch;
+
     setState(() {
+      _endTime = DateTime.now().millisecondsSinceEpoch;
       animationTest = false;
       _time = _endTime - _startTime;
 //      durations.add(_time);
@@ -153,15 +154,19 @@ class _MyHomePageState extends State<MyHomePage> {
   Future getDataFromDatabase() async {
     startTimer();
     var x = await DBProvider.db.getAllUsers();
-    setState(() {
-      x.forEach((e) {
-        _response += "\n ${e.toString()}";
+      Future.forEach(x, (e)=>addToResponse(e)).then((v){
+        setState(() {
+          stopTimer();
+        });
       });
-    });
-    stopTimer();
   }
 
-  Future getFileFromAppDirectory() async {
+  Future addToResponse(e) async{
+    _response += "\n ${e.toString()}";
+    print(e.toString());
+  }
+
+  void getFileFromAppDirectory() {
     startTimer();
     _fileStorageTest.readFile().then((v) {
       setState(() {
